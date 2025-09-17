@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Combined Page</title>
+      <style>
+         @import url('https://unpkg.com/normalize.css') layer(normalize);
+         @import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap');
+         @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+         @layer normalize, base, demo;
+         @layer demo {
+ .filter {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+
+        body {
+            font-family: 'SF Pro Display', sans-serif;
+            overflow: none;
+            background-image: url('https://www.iclarified.com/images/news/97559/465593/465593.jpg');
+            background-size: cover;
+
+            transition: background-image 0.4s ease;
+        }
+
+         /* APP LIBRARY */
+         .effect {
+         opacity: 0;
+         transition: opacity 0.26s ease-out;
+         height: calc(var(--height) * 1px);
+         width: calc(var(--width) * 1px);
+         border-radius: calc(var(--radius) * 1px);
+         position: fixed;
+         z-index: 999999;
+         background: light-dark(
+         hsl(0 0% 100% / var(--frost, 0)),
+         hsl(0 0% 0% / var(--frost, 0))
+         );
+         backdrop-filter: url(#filter) saturate(var(--saturation, 1));
+         box-shadow: 0 0 2px 1px
+         light-dark(
+         color-mix(in oklch, canvasText, #0000 85%),
+         color-mix(in oklch, canvasText, #0000 65%)
+         )
+         inset,
+         0 0 10px 4px
+         light-dark(
+         color-mix(in oklch, canvasText, #0000 90%),
+         color-mix(in oklch, canvasText, #0000 85%)
+         )
+         inset,
+         0px 4px 16px rgba(17, 17, 26, 0.05), 0px 8px 24px rgba(17, 17, 26, 0.05),
+         0px 16px 56px rgba(17, 17, 26, 0.05),
+         0px 4px 16px rgba(17, 17, 26, 0.05) inset,
+         0px 8px 24px rgba(17, 17, 26, 0.05) inset,
+         0px 16px 56px rgba(17, 17, 26, 0.05) inset;
+         * {
+         pointer-events: none;
+         }
+
+
+         }
+         [data-debug='true'] .displacement-debug {
+         translate: 0 calc(100% + 1rem);
+         scale: 1;
+         opacity: 0;
+         }
+
+         }
+         /* APPS */
+         .popup {
+         position: fixed;
+         top: 0; left: 0;
+         width: 100%; height: 100%;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         opacity: 0;
+         pointer-events: none;
+         transition: opacity 0.1s ease;
+         }
+         .popup.active { 
+         opacity: 1; 
+         pointer-events: auto; 
+         }
+         .popup-content {
+         background: white;
+         border-radius: 10px;
+         padding: 20px;
+         width: 300px;
+         position: relative;
+         transform: scale(0.95);
+         transition: transform 0.1s ease;
+         }
+         .popup.active .popup-content { 
+         transform: scale(1); 
+         }
+         .close-btn {
+         cursor: pointer;
+         position: absolute;
+         top: 10px;
+         right: 15px;
+         font-weight: bold;
+         color: red;
+         font-size: 20px;
+         }
+         img.button { 
+         cursor: pointer; 
+         width: 100px; 
+         margin: 10px; 
+         pointer-events: auto; 
+         z-index: 999999; 
+         }
+         /* Hidden content sections */
+         .content-section { 
+         display: none; 
+         }
+         }
+         /* APPLICATION BUTTONS */
+         #buttonsContainer {
+         position: relative;
+         }
+
+         /* DATE & TIME */
+         #clock {
+         font-size: 180px;
+         color: white;
+         font-family: 'SF Pro Display', sans-serif;
+         font-weight: px;
+         text-align: center;
+         overflow: hidden;
+         }
+         #date {
+         font-size: 30px;
+         color: white;
+         font-family: 'SF Pro Display', sans-serif;
+         font-weight: ;
+         text-align: center;
+         overflow: hidden;
+         }
+      </style>
+   </head>
+   <body>
+      <header>
+      <br><br>
+      <div class="move resize-90 " id="date"></div>
+      <div class="move resize-108" id="clock"></div>
+      <div class="effect">
+         <div id="buttonsContainer">
+            <img src="https://via.placeholder.com/100x100?text=A" class="button" data-target="contentA">
+<ol>
+            <img src="https://via.placeholder.com/100x100?text=B" class="button" data-target="contentB">
+            <img src="https://via.placeholder.com/100x100?text=C" class="button" data-target="contentC">
+         </div>
+         <!-- Displacement debug stays underneath -->
+         <div class="nav-wrap">
+            <nav>
+            </nav>
+         </div>
+         <svg class="filter" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+               <filter id="filter" color-interpolation-filters="sRGB">
+                  <!-- the input displacement image -->
+                  <feImage
+                     x="0"
+                     y="0"
+                     width="100%"
+                     height="100%"
+                     result="map"
+                     ></feImage>
+                  <!-- the displacement map to use -->
+                  <!-- <feDisplacementMap in2="map" in="SourceGraphic" /> -->
+                  <!-- the chromatic aberration for the people -->
+                  <!-- RED channel with strongest displacement -->
+                  <feDisplacementMap
+                     in="SourceGraphic"
+                     in2="map"
+                     id="redchannel"
+                     xChannelSelector="R"
+                     yChannelSelector="G"
+                     result="dispRed"
+                     />
+                  <feColorMatrix
+                     in="dispRed"
+                     type="matrix"
+                     values="1 0 0 0 0
+                     0 0 0 0 0
+                     0 0 0 0 0
+                     0 0 0 1 0"
+                     result="red"
+                     />
+                  <!-- GREEN channel (reference / least displaced) -->
+                  <feDisplacementMap
+                     in="SourceGraphic"
+                     in2="map"
+                     id="greenchannel"
+                     xChannelSelector="R"
+                     yChannelSelector="G"
+                     result="dispGreen"
+                     />
+                  <feColorMatrix
+                     in="dispGreen"
+                     type="matrix"
+                     values="0 0 0 0 0
+                     0 1 0 0 0
+                     0 0 0 0 0
+                     0 0 0 1 0"
+                     result="green"
+                     />
+                  <!-- BLUE channel with medium displacement -->
+                  <feDisplacementMap
+                     in="SourceGraphic"
+                     in2="map"
+                     id="bluechannel"
+                     xChannelSelector="R"
+                     yChannelSelector="G"
+                     result="dispBlue"
+                     />
+                  <feColorMatrix
+                     in="dispBlue"
+                     type="matrix"
+                     values="0 0 0 0 0
+                     0 0 0 0 0
+                     0 0 1 0 0
+                     0 0 0 1 0"
+                     result="blue"
+                     />
+                  <!-- Blend channels back together -->
+                  <feBlend in="red" in2="green" mode="screen" result="rg" />
+                  <feBlend in="rg" in2="blue" mode="screen" result="output" />
+                  <!-- output blend -->
+                  <feGaussianBlur in="output" stdDeviation="0.7" />
+               </filter>
+            </defs>
+         </svg>
+         <div class="displacement-debug"></div>
+      </div>
+      <main>
+         <!-- dock placeholder and instruction -->
+         <section class="placeholder">
+            <div class="dock-placeholder"></div>
+            <span class="arrow arrow--debug">
+            <svg
+            viewBox="0 0 0 0"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            </svg>
+            </span>
+         </section>
+         <!-- Popup div -->
+         <div class="popup" id="popup">
+            <div class="popup-content">
+               <span class="close-btn" id="closeBtn">&times;</span>
+               <div id="popupContent"></div>
+            </div>
+         </div>
+         <!-- Hidden content sections somewhere else in HTML -->
+         <div id="hiddenContents" style="display:none;">
+            <div id="contentA" class="content-section">
+               <h3>Title A</h3>
+               <p>This is the content for A</p>
+               <div class="inner-section">Nested div inside A!</div>
+            </div>
+            <div id="contentB" class="content-section">
+               <h3>Title B</h3>
+               <p>This is content for B</p>
+               <div class="inner-section">Another nested div!</div>
+            </div>
+            <div id="contentC" class="content-section">
+               <h3>Title C</h3>
+               <p>This is content for C</p>
+               <img src="https://via.placeholder.com/80" alt="Small Image">
+            </div>
+         </div>
+      </main>
+      <script type="module">
+         import gsap from 'https://cdn.skypack.dev/gsap@3.13.0'
+         import Draggable from 'https://cdn.skypack.dev/gsap@3.13.0/Draggable'
+         gsap.registerPlugin(Draggable)
+         
+         // Dock-only configuration
+         const config = {
+           width: 222,
+           height: 444,  // max base height
+           radius: 16,
+           border: 0,
+           lightness: 50,
+           alpha: 1,
+           blur: 11,
+           displace: 0.3,
+           scale: -180,
+           r: 0,
+           g: 10,
+           b: 20,
+           blend: 'difference',
+           x: 'R',
+           y: 'B',
+           frost: 0.05,
+           icons: true,
+         }
+         
+         // Update config.height to 98% of viewport height
+         config.height = window.innerHeight * 0.90;
+         
+         
+         // Elements
+         const panel = document.querySelector('.effect')
+         const debugPen = document.querySelector('.displacement-debug')
+         
+         // --- Build displacement SVG ---
+         const buildDisplacementImage = () => {
+           const border = Math.min(config.width, config.height) * (config.border * 0.5)
+           const svgHTML = `
+             <svg class="displacement-image" viewBox="0 0 ${config.width} ${config.height}" xmlns="http://www.w3.org/2000/svg">
+               <defs>
+                 <linearGradient id="red" x1="100%" y1="0%" x2="0%" y2="0%">
+                   <stop offset="0%" stop-color="#000"/>
+                   <stop offset="100%" stop-color="red"/>
+                 </linearGradient>
+                 <linearGradient id="blue" x1="0%" y1="0%" x2="0%" y2="100%">
+                   <stop offset="0%" stop-color="#000"/>
+                   <stop offset="100%" stop-color="blue"/>
+                 </linearGradient>
+               </defs>
+               <rect x="0" y="0" width="${config.width}" height="${config.height}" fill="black"/>
+               <rect x="0" y="0" width="${config.width}" height="${config.height}" rx="${config.radius}" fill="url(#red)" />
+               <rect x="0" y="0" width="${config.width}" height="${config.height}" rx="${config.radius}" fill="url(#blue)" style="mix-blend-mode: ${config.blend}" />
+               <rect x="${border}" y="${border}" width="${config.width - border*2}" height="${config.height - border*2}" rx="${config.radius}" 
+                     fill="hsl(0 0% ${config.lightness}% / ${config.alpha})" style="filter:blur(${config.blur}px)" />
+             </svg>
+             <div class="label"><span>displacement image</span></div>
+           `
+           debugPen.innerHTML = svgHTML
+         
+           const svgEl = debugPen.querySelector('.displacement-image')
+           const serialized = new XMLSerializer().serializeToString(svgEl)
+           const encoded = encodeURIComponent(serialized)
+           const dataUri = `data:image/svg+xml,${encoded}`
+         
+           gsap.set('feImage', { attr: { href: dataUri } })
+           gsap.set('feDisplacementMap', { attr: { xChannelSelector: config.x, yChannelSelector: config.y } })
+         }
+         
+         // --- Update CSS variables and SVG filter ---
+         const update = () => {
+           buildDisplacementImage()
+           gsap.set(document.documentElement, {
+             '--width': config.width,
+             '--radius': config.radius,
+             '--frost': config.frost,
+             '--saturation': 1,
+             '--output-blur': config.displace,
+           })
+           gsap.set('feDisplacementMap', { attr: { scale: config.scale } })
+           gsap.set('#redchannel', { attr: { scale: config.scale + config.r } })
+           gsap.set('#greenchannel', { attr: { scale: config.scale + config.g } })
+           gsap.set('#bluechannel', { attr: { scale: config.scale + config.b } })
+           gsap.set('feGaussianBlur', { attr: { stdDeviation: config.displace } })
+         
+           document.documentElement.dataset.icons = config.icons
+           document.documentElement.dataset.mode = 'dock'
+           document.documentElement.dataset.debug = true
+         }
+         
+         // --- Resize panel to match viewport ---
+         const peek = 40
+         const openOffset = 20
+         let closedX = -config.width + peek
+         let openX = openOffset
+         
+         // --- Resize panel to match viewport (98%) ---
+         const resizePanel = () => {
+           const newHeight = Math.min(window.innerHeight * 0.98, config.height) // 98% of viewport
+           panel.style.height = `${newHeight}px`
+           document.documentElement.style.setProperty('--height', newHeight)
+         
+           // Rebuild the displacement SVG with new height
+           const border = Math.min(config.width, newHeight) * (config.border * 0.5)
+           const svgEl = debugPen.querySelector('.displacement-image')
+           if (svgEl) {
+             svgEl.setAttribute('height', newHeight)
+             svgEl.setAttribute('viewBox', `0 0 ${config.width} ${newHeight}`)
+             // Adjust the inner rect for new height
+             const rects = svgEl.querySelectorAll('rect')
+             rects.forEach((r, i) => {
+               if (i === 0 || i === 1 || i === 2) {
+                 r.setAttribute('height', newHeight)
+               } else if (i === 3) { // blurred overlay
+                 r.setAttribute('height', newHeight - border * 2)
+               }
+             })
+           }
+         
+           // Center vertically
+           panel.style.top = `${(window.innerHeight - newHeight) / 2}px`
+           closedX = -panel.offsetWidth + peek
+           openX = openOffset
+         }
+         
+         // Call on initial load and window resize
+         resizePanel()
+         window.addEventListener('resize', resizePanel)
+         
+         // --- Initial setup ---
+         update()
+         resizePanel()
+         window.addEventListener('resize', resizePanel)
+         gsap.set(panel, { left: 0, transform: `translateX(${closedX}px)`, opacity: 1 })
+         
+         // --- Create grab zone ---
+         const grabZone = document.createElement('div')
+         grabZone.style.position = 'fixed'
+         grabZone.style.top = '0'
+         grabZone.style.left = '0'
+         grabZone.style.width = `${peek}px`
+         grabZone.style.height = '100%'
+         grabZone.style.zIndex = '999999'
+         grabZone.style.background = 'transparent'
+         grabZone.style.touchAction = 'none'
+         document.body.appendChild(grabZone)
+         
+         // --- Swipe/drag logic ---
+         let startX = 0
+         let currentX = 0
+         let isDragging = false
+         let isHorizontal = false
+         let panelStartX = 0
+         
+         function touchStart(e) {
+           startX = e.touches[0].clientX
+           isDragging = panel.classList.contains('open') || e.target === grabZone
+           isHorizontal = false
+           const style = window.getComputedStyle(panel)
+           const matrix = new WebKitCSSMatrix(style.transform)
+           panelStartX = matrix.m41
+         }
+         
+         function touchMove(e) {
+           if (!isDragging) return
+         
+           let dx = e.touches[0].clientX - startX
+           if (!isHorizontal) {
+             isHorizontal = Math.abs(dx) > Math.abs(e.touches[0].clientY - e.touches[0].clientY)
+             if (!isHorizontal) return
+           }
+         
+           currentX = e.touches[0].clientX
+           let transformX = panelStartX + dx
+           transformX = Math.min(transformX, openX)
+           transformX = Math.max(transformX, closedX)
+         
+           panel.style.transition = 'none'
+           panel.style.transform = `translateX(${transformX}px)`
+           e.preventDefault()
+         }
+         
+         function touchEnd() {
+           if (!isDragging || !isHorizontal) return
+           isDragging = false
+           panel.style.transition = 'transform 0.3s cubic-bezier(0.25,1,0.5,1)'
+           if (currentX - startX > config.width / 3) {
+             panel.classList.add('open')
+             panel.style.transform = `translateX(${openX}px)`
+           } else {
+             panel.classList.remove('open')
+             panel.style.transform = `translateX(${closedX}px)`
+           }
+         }
+         
+         
+         
+         grabZone.addEventListener('touchstart', touchStart)
+         grabZone.addEventListener('touchmove', touchMove)
+         grabZone.addEventListener('touchend', touchEnd)
+         panel.addEventListener('touchstart', touchStart)
+         panel.addEventListener('touchmove', touchMove)
+         panel.addEventListener('touchend', touchEnd)
+         
+         // --- Tap outside to close ---
+         document.addEventListener('click', e => {
+           if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== grabZone) {
+             panel.classList.remove('open')
+             panel.style.transform = `translateX(${closedX}px)`
+           }
+         })
+      </script>
+      <script>
+         const buttons = document.querySelectorAll('.button');
+         const popup = document.getElementById('popup');
+         const popupContent = document.getElementById('popupContent');
+         const closeBtn = document.getElementById('closeBtn');
+         
+         buttons.forEach(button => {
+           button.addEventListener('click', () => {
+             const targetId = button.getAttribute('data-target');
+             const content = document.getElementById(targetId);
+             popupContent.innerHTML = content.innerHTML; // copy content
+             popup.classList.add('active');
+           });
+         });
+         
+         closeBtn.addEventListener('click', () => popup.classList.remove('active'));
+         popup.addEventListener('click', e => { if (e.target === popup) popup.classList.remove('active'); });
+         
+         
+                         function updateTime() {
+                             var now = new Date();
+                             var hours = now.getHours();
+                             var minutes = now.getMinutes();
+                             var ampm = hours >= 12 ? '' : '';
+         
+                             // Convert hours from military time to 12-hour format
+                             hours = hours % 12;
+                             hours = hours ? hours : 12; // Handle midnight (0 hours)
+         
+                             // Convert single digit hours/minutes to double digit format (e.g., 9 -> 09)
+                             minutes = minutes < 10 ? "0" + minutes : minutes;
+         
+                             var timeString = hours + ":" + minutes + " " + ampm;
+                             document.getElementById('clock').innerHTML = timeString;
+                         }
+         
+                         setInterval(updateTime, 1000);
+                         updateTime();
+         
+                         function updateDate() {
+                             var now = new Date();
+                             var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                             var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                             var day = days[now.getDay()];
+                             var month = months[now.getMonth()];
+                             var dayNumber = now.getDate();
+         
+                             var dateString = day + ", " + month + " " + dayNumber;
+                             document.getElementById('date').innerHTML = dateString;
+                         }
+         
+                         setInterval(updateDate, 1000);
+                         updateDate();
+         
+         
+         
+      </script>
+      </script>
+   </body>
+</html>
